@@ -11,8 +11,7 @@
     "build": "vue-cli-service build  --mode production",
     "build:dep": "vue-cli-service build --mode deployment",
     "build:prod": "vue-cli-service build --mode production",
-    "lint": "vue-cli-service lint",
-    "h5": "cd ./h5 && npm run dev"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@chenfengyuan/vue-countdown": "^1.1.2",

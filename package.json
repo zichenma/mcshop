@@ -7,7 +7,11 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production"
+        "production": "mix --production",
+        "h5": "cd ./h5 && npm run dev",
+        "up": "cd ./laradock && sh sync.sh up workspace nginx redis mysql",
+        "down": "cd ./laradock && sh sync.sh down",
+        "up-w": "cd ./laradock && sh sync.sh up workspace"
     },
     "devDependencies": {
         "axios": "^0.21",

@@ -42,6 +42,7 @@ import { Radio, RadioGroup, Dialog } from 'vant';
 import { orderDetail, orderPrepay, orderH5pay } from '@/api/api';
 import _ from 'lodash';
 import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
+import {orderH5alipay} from "../../../api/api";
 
 export default {
   name: 'payment',
@@ -140,7 +141,17 @@ export default {
               });
           }
         } else {
-          //todo : alipay
+          orderH5alipay({orderId: this.orderId})
+                  .then(res => {
+                    let form = res.data.data;
+                    const div = document.createElement('div')
+                    div.innerHTML = form
+                    document.body.appendChild(div)
+                    document.forms[0].submit()
+                  })
+                  .catch(err => {
+                    Dialog.alert({message: err.data.errmsg});
+                  });
         }
       });
     },

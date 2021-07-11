@@ -33,6 +33,7 @@ export function authLoginByAccount(data) {
   return request({
     url: AuthLoginByAccount,
     method: 'post',
+    version: 'v2',
     data
   })
 }
@@ -40,6 +41,7 @@ const AuthLogout='wx/auth/logout'; //账号登出
 export function authLogout() {
   return request({
     url: AuthLogout,
+    version: 'v2',
     method: 'post'
   })
 }
@@ -47,6 +49,7 @@ const AuthInfo='wx/auth/info'; //用户信息
 export function authInfo() {
   return request({
     url: AuthInfo,
+    version: 'v2',
     method: 'get'
   })
 }
@@ -55,6 +58,7 @@ export function authProfile(data) {
   return request({
     url: AuthProfile,
     method: 'post',
+    version: 'v2',
     data    
   })
 }
@@ -63,6 +67,7 @@ export function authRegister(data) {
   return request({
     url: AuthRegister,
     method: 'post',
+    version: 'v2',
     data
   });
 }
@@ -71,6 +76,7 @@ export function authReset(data) {
   return request({
     url: AuthReset,
     method: 'post',
+    version: 'v2',
     data    
   })
 }
@@ -79,6 +85,7 @@ export function authRegisterCaptcha(data) {
   return request({
     url: AuthRegisterCaptcha,
     method: 'post',
+    version: 'v2',
     data    
   })
 }
@@ -87,6 +94,7 @@ export function authCaptcha(data) {
   return request({
     url: AuthCaptcha,
     method: 'post',
+    version: 'v2',
     data    
   })
 }
@@ -260,6 +268,7 @@ export function addressList(query) {
   return request({
     url: AddressList,
     method: 'get',
+    version: 'v2',
     params: query
   })
 }
@@ -285,6 +294,7 @@ export function addressDelete(data) {
   return request({
     url: AddressDelete,
     method: 'post',
+    version: 'v2',
     data
   })
 }
@@ -315,6 +325,17 @@ export function orderH5pay(data) {
     data
   });
 }
+
+const OrderH5alipay = 'wx/order/h5alipay'; // h5支付
+export function orderH5alipay(data) {
+  return request({
+    url: OrderH5alipay,
+    version: 'v2',
+    method: 'post',
+    data
+  });
+}
+
 export const OrderList='wx/order/list'; //订单列表
 export function orderList(query) {
   return request({

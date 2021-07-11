@@ -2,7 +2,12 @@
 
 namespace App\Exceptions;
 
+use App\CodeResponse;
+use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -13,7 +18,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        BusinessException::class
     ];
 
     /**
@@ -22,20 +27,48 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontFlash = [
-        'current_password',
         'password',
         'password_confirmation',
     ];
 
     /**
-     * Register the exception handling callbacks for the application.
+     * Report or log an exception.
      *
+     * @param  Throwable  $exception
      * @return void
+     *
+     * @throws Exception
      */
-    public function register()
+    public function report(Throwable $exception)
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+        parent::report($exception);
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  Request  $request
+     * @param  Throwable  $exception
+     * @return Response
+     *
+     * @throws Throwable
+     */
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof ValidationException) {
+            return response()->json([
+                'errno' => CodeResponse::PARAM_VALUE_ILLEGAL[0],
+                'errmsg' => CodeResponse::PARAM_VALUE_ILLEGAL[1],
+            ]);
+        }
+
+        if ($exception instanceof BusinessException) {
+            return response()->json([
+                'errno' => $exception->getCode(),
+                'errmsg' => $exception->getMessage()
+            ]);
+        }
+
+        return parent::render($request, $exception);
     }
 }

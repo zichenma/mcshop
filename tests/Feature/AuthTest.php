@@ -42,7 +42,8 @@ class AuthTest extends TestCase
 
     }
 
-    public function testRegisterMobile() {
+    public function testRegisterMobile()
+    {
         $response = $this->post('wx/auth/register',
             [
                 'username' => 'tanfan2',
@@ -53,5 +54,21 @@ class AuthTest extends TestCase
         $response->assertStatus(200);
         $ret = $response->getOriginalContent();
         $this->assertEquals(707, $ret['errno']); //fail 0 != 704
+    }
+
+    public function testRegCaptcha()
+    {
+        $response = $this->post('wx/auth/regCaptcha',
+            [
+                'mobile' => '13111112131',
+            ]);
+        // 可以直接验证 json, 比 Equals 更好，但是只会断言提供的字段
+        $response->assertJson(['errno' => 0, 'errmsg' => '成功', 'data' => null]);
+        // 测试一分钟之类发送两次
+        $response = $this->post('wx/auth/regCaptcha',
+            [
+                'mobile' => '13111112131',
+            ]);
+        $response->assertJson(['errno' => 702, 'errmsg' => '验证码未超时1分钟，不能发送']);
     }
 }

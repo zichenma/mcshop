@@ -17,3 +17,4 @@ use Illuminate\Support\Facades\Route;
 
 # 用户模块-用户
 Route::post('auth/register', 'AuthController@register');//账号注册
+Route::post('auth/regCaptcha', 'AuthController@regCaptcha');//账号注册

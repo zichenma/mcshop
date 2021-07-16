@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Wx;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\UserServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -52,6 +53,11 @@ class AuthController extends Controller
             ];
         }
         // 3. 验证验证码是否正确
+        // todo 验证验证码是否正确
+        $isPass = (new UserServices())->checkCaptcha($mobile, $code);
+        if (!$isPass) {
+            return ['errno' => 703, 'errmsg' => '验证码错误'];
+        }
         // 4. 写入用户表
         $user = new User();
         // 相当于 user.setUsername(username)
@@ -100,8 +106,6 @@ class AuthController extends Controller
                 'errmsg' => '手机号已注册'
             ];
         }
-        // todo 随机生成6位验证码
-        $code = random_int(100000, 999999); // 为了简单，10万起
         // todo 防刷验证，一分钟内只能请求一次， 当天值能请求 10 次
         $lock = Cache::add('register_captcha_lock_'.$mobile, 1, 60); // 如果缓存存在，则返回 false (put, 则直接覆盖), 把手机号锁 60 秒
         if (!$lock) {
@@ -110,29 +114,41 @@ class AuthController extends Controller
                 'errmsg' => '验证码未超过一分钟，不能发送'
             ];
         }
-        $countKey = 'register_captcha_count_'.$mobile;
-        if(Cache::has($countKey)){
-            $count = Cache::increment('register_captcha_count_'.$mobile);
-            if ($count > 10) {
-                return [
-                    'errno' => 702,
-                    'errmsg' => '验证码当天发送不能超过10次'
-                ];
-            }
-        } else {
+        // 为了单元测试方便，此时需要把这部分逻辑封装成一个函数, 放到 service 里
+//        $countKey = 'register_captcha_count_'.$mobile;
+//        if(Cache::has($countKey)){
+//            $count = Cache::increment('register_captcha_count_'.$mobile);
+//            if ($count > 10) {
+//                return [
+//                    'errno' => 702,
+//                    'errmsg' => '验证码当天发送不能超过10次'
+//                ];
+//            }
+//        } else {
             // 从当前时间到第二天 0 点的时间间隔
-            Cache::put($countKey, 1, Carbon::tomorrow()->diffInSeconds(now()));
+//            Cache::put($countKey, 1, Carbon::tomorrow()->diffInSeconds(now()));
+//        }
+        $isPass = (new UserServices())->checkMobileSendCaptchaCount($mobile);
+        if (!$isPass) {
+            return [
+                'errno' => 702,
+                'errmsg' => '验证码当天发送不能超过10次'
+            ];
         }
-
+        // todo 随机生成6位验证码
         // todo 保存手机号和验证码关系
-        // key: $mobile, value: $code, TTL: 10 mins
-        Cache::put('register_captcha_'.$mobile, $code, 600); // 这里把 cellphone 和 验证码的关系 存在 redis 里面
-        // todo 发送短信
-        Notification::route(
-            EasySmsChannel::class,
-            new PhoneNumber(13333333333, 86)
-        )->notify(new VerificationCode($code));
+        $code = (new UserServices())->setCaptcha(($mobile));
+        (new UserServices())->sendCaptchaMsg($mobile, $code);
+        // todo 发送短信 该部分可以封装成一个函数，在开发环境下，并不需要真正发送短信
+        (new UserServices())->sendCaptchaMsg($mobile, $code);
+//        Notification::route(
+//            EasySmsChannel::class,
+//            new PhoneNumber(13333333333, 86)
+//        )->notify(new VerificationCode($code));
+
         return ['errno' => 0, 'errmsg' => '成功', 'data' => null];
+
+
 
     }
 

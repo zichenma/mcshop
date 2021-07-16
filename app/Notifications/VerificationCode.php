@@ -3,14 +3,14 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Leonis\Notifications\EasySms\Channels\EasySmsChannel;
-use Leonis\Notifications\EasySms\Messages\EasySmsMessage;
 
 class VerificationCode extends Notification
 {
     use Queueable;
-
     private $code;
 
     /**
@@ -34,11 +34,17 @@ class VerificationCode extends Notification
         return [EasySmsChannel::class];
     }
 
+    /**
+     * Get the mail representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
     public function toEasySms($notifiable)
     {
         return (new EasySmsMessage())
-            ->setTemplate('SMS_2145004')
-            ->setData(['code' => $this->code, 'product' => 'mcshop']);
+            ->setTemplate('SMS_2145004') // 阿里云
+            ->setData(['code' => $this->code, 'product'=>'mcshop']);
     }
 
     /**

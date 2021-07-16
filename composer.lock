@@ -1604,26 +1604,20 @@
         },
         {
             "name": "leonis/easysms-notification-channel",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yl/easysms-notification-channel.git",
-                "reference": "f2f340526dd6df494fe0748c08802d3d93d2fbd1"
+                "reference": "3e529f46228e9491e18be7c380032e7c47c807bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yl/easysms-notification-channel/zipball/f2f340526dd6df494fe0748c08802d3d93d2fbd1",
-                "reference": "f2f340526dd6df494fe0748c08802d3d93d2fbd1",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "url": "https://api.github.com/repos/yl/easysms-notification-channel/zipball/3e529f46228e9491e18be7c380032e7c47c807bb",
+                "reference": "3e529f46228e9491e18be7c380032e7c47c807bb",
+                "shasum": ""
             },
             "require": {
-                "overtrue/easy-sms": "^1.1"
+                "overtrue/easy-sms": "~1.1"
             },
             "type": "library",
             "extra": {
@@ -1654,7 +1648,11 @@
                 "laravel",
                 "notifications"
             ],
-            "time": "2020-01-06T05:52:03+00:00"
+            "support": {
+                "issues": "https://github.com/yl/easysms-notification-channel/issues",
+                "source": "https://github.com/yl/easysms-notification-channel/tree/1.0.3"
+            },
+            "time": "2021-02-03T02:26:39+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -9428,5 +9426,5 @@
     "platform-dev": {
         "ext-json": "*"
     },
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.1.0"
 }

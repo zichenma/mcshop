@@ -8,7 +8,10 @@ use App\Services\UserServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
+use Leonis\Notifications\EasySms\Channels\EasySmsChannel;
+use Overtrue\EasySms\PhoneNumber;
 
 class AuthController extends Controller
 {
@@ -73,4 +76,65 @@ class AuthController extends Controller
             ]
         ];
     }
+
+    public function regCaptcha(Request $request)
+    {
+        // todo 获取手机号
+        $mobile = $request->input('mobile');
+        if (empty($mobile)) {
+            return ['errno' => 401, 'errmsg' => '参数不对'];
+        }
+        // todo 验证手机号是否合法
+        $validator = Validator::make(['mobile' => $mobile], ['mobile' => 'regex:/^1[0-9]{10}$/']);
+        if ($validator->fails()) {
+            return [
+                'errno' => 707,
+                'errmsg' => '手机号格式不正确'
+            ];
+        }
+        // todo 验证手机号是否已经被注册
+        $user = (new UserServices())->getByMobile($mobile);
+        if (!is_null($user)) {
+            return [
+                'errno' => 705,
+                'errmsg' => '手机号已注册'
+            ];
+        }
+        // todo 随机生成6位验证码
+        $code = random_int(100000, 999999); // 为了简单，10万起
+        // todo 防刷验证，一分钟内只能请求一次， 当天值能请求 10 次
+        $lock = Cache::add('register_captcha_lock_'.$mobile, 1, 60); // 如果缓存存在，则返回 false (put, 则直接覆盖), 把手机号锁 60 秒
+        if (!$lock) {
+            return [
+                'errno' => 702,
+                'errmsg' => '验证码未超过一分钟，不能发送'
+            ];
+        }
+        $countKey = 'register_captcha_count_'.$mobile;
+        if(Cache::has($countKey)){
+            $count = Cache::increment('register_captcha_count_'.$mobile);
+            if ($count > 10) {
+                return [
+                    'errno' => 702,
+                    'errmsg' => '验证码当天发送不能超过10次'
+                ];
+            }
+        } else {
+            // 从当前时间到第二天 0 点的时间间隔
+            Cache::put($countKey, 1, Carbon::tomorrow()->diffInSeconds(now()));
+        }
+
+        // todo 保存手机号和验证码关系
+        // key: $mobile, value: $code, TTL: 10 mins
+        Cache::put('register_captcha_'.$mobile, $code, 600); // 这里把 cellphone 和 验证码的关系 存在 redis 里面
+        // todo 发送短信
+        Notification::route(
+            EasySmsChannel::class,
+            new PhoneNumber(13333333333, 86)
+        )->notify(new VerificationCode($code));
+        return ['errno' => 0, 'errmsg' => '成功', 'data' => null];
+
+    }
+
+
 }
